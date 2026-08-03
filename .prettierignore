@@ -1,0 +1,6 @@
+dist
+coverage
+node_modules
+public/vendor
+docs/design/*.png
+pnpm-lock.yaml
