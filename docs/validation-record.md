@@ -14,6 +14,7 @@ Date: 2026-08-03
 - Chromium E2E: 3 passed.
 - Microsoft Edge E2E: 3 passed.
 - Session request audit: zero third-party HTTP requests.
+- GitHub Actions `validate`: pass on public `main` (run 30831791444).
 
 ## Visual and interaction QA
 

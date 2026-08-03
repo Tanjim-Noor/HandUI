@@ -2,6 +2,8 @@
 
 HandUI is a browser-local capability gallery for real-time hand tracking, gestures, motion, and spatial UI interaction through a normal webcam.
 
+Public source: [Tanjim-Noor/HandUI](https://github.com/Tanjim-Noor/HandUI). No live deployment is provided by design.
+
 The project is a proof of concept and learning portfolio, not a replacement for mouse, keyboard, or assistive technology. Camera frames are processed locally and are never recorded or uploaded.
 
 ## Status

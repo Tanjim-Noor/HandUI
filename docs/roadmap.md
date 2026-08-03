@@ -10,7 +10,7 @@
 | Two-hand 2D             | Pairing and bilateral transform                  | Implemented |
 | Orientation and 3D      | Palm basis, quaternion, procedural scene         | Implemented |
 | Combined showcase       | Progressive gallery and diagnostics              | Implemented |
-| Public hardening        | CI, public GitHub repository, green release gate | In progress |
+| Public hardening        | CI, public GitHub repository, green release gate | Implemented |
 | Post-release            | Framework and extension feasibility              | Deferred    |
 
 Later exhibits: swipe, dwell, circle/path recognition, scroll, gesture navigation, repulsion, particle field, and browser-extension experiments.
