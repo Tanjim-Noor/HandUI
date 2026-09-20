@@ -13,7 +13,13 @@ import type {
 } from '../contracts/types';
 import type { WorkerRequest, WorkerResponse } from './protocol';
 
-const scope = self as unknown as DedicatedWorkerGlobalScope;
+type MediaPipeModuleFactory = (moduleArg?: object) => Promise<unknown>;
+
+interface MediaPipeWorkerScope extends DedicatedWorkerGlobalScope {
+  ModuleFactory?: MediaPipeModuleFactory;
+}
+
+const scope = self as unknown as MediaPipeWorkerScope;
 let recognizer: GestureRecognizer | undefined;
 
 const gestureNames: Record<string, GestureName> = {
@@ -56,7 +62,17 @@ function mapResult(result: GestureRecognizerResult): readonly RawHandObservation
 async function initialize(config: TrackerConfig): Promise<number> {
   recognizer?.close();
   const started = performance.now();
-  const fileset = await FilesetResolver.forVisionTasks(config.wasmPath);
+  const simdSupported = await FilesetResolver.isSimdSupported();
+  const loader = simdSupported
+    ? await import('../../../.generated/mediapipe/vision_wasm_internal.mjs')
+    : await import('../../../.generated/mediapipe/vision_wasm_nosimd_internal.mjs');
+  scope.ModuleFactory = loader.default;
+  const fileset = {
+    wasmLoaderPath: '',
+    wasmBinaryPath: `${config.wasmPath}/${
+      simdSupported ? 'vision_wasm_internal.wasm' : 'vision_wasm_nosimd_internal.wasm'
+    }`,
+  };
   recognizer = await GestureRecognizer.createFromOptions(fileset, {
     baseOptions: { modelAssetPath: config.modelPath, delegate: config.delegate },
     runningMode: 'VIDEO',

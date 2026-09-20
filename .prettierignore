@@ -2,5 +2,6 @@ dist
 coverage
 node_modules
 public/vendor
+.generated
 docs/design/*.png
 pnpm-lock.yaml

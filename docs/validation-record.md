@@ -26,3 +26,19 @@ Date: 2026-08-03
 ## Hardware-dependent manual checks
 
 Real-camera lighting, occlusion, physical handedness, camera switching, and measured inference p95 remain owner-device checks because automated validation uses deterministic replay. The UI exposes the required metrics and recovery states.
+
+## 2026-08-04 startup and logging regression
+
+- Fixed the development CSP conflict with the Vite React Refresh inline preamble while retaining the strict production policy.
+- Fixed shared-session disposal during React Strict Mode effect replay.
+- Added bounded local error records, global browser handlers, camera/worker logging, a React error boundary, and developer-panel diagnostics.
+- Development browser check passed on the reported port `5173`: meaningful HandUI content, two synthetic hands, favicon present, and no relevant console warnings or errors.
+- Canonical `pnpm validate` passed with 26 unit/replay/component tests and 3 Chromium E2E tests.
+
+## 2026-08-04 MediaPipe development-loader regression
+
+- Reproduced Vite rejecting `public/vendor/mediapipe/wasm/vision_wasm_internal.js?import` during camera startup.
+- Confirmed that the pinned MediaPipe 1.0.1 loader requires classic-script debug-hook scoping even when adapted for a module worker.
+- `assets:sync` now creates verified ESM-compatible loader inputs under ignored `.generated/`; runtime model and WASM requests remain same-origin.
+- Added a fake-camera Chromium E2E that initializes the real worker, reaches the active tracking state, checks the local error log, audits third-party requests, and stops the session.
+- Development page check on port `5173` passed without Vite overlay or console warnings/errors. Automated fake-camera worker initialization passed against both the development server and the production preview build.

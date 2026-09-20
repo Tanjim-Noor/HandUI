@@ -8,6 +8,8 @@ HandUI separates capture, tracking, hand intelligence, semantic interaction, and
 
 Main thread owns `getUserMedia`, the camera element, route shell, Canvas overlays, and DOM/Three rendering. A dedicated module worker owns MediaPipe creation, synchronous inference, and disposal.
 
+MediaPipe 1.0.1 publishes its WASM loader as a classic script. `assets:sync` creates ignored, version-pinned ESM-compatible loader modules and restores the loader's classic debug-hook scoping; the worker installs the selected factory before recognizer creation. Only the selected same-origin `.wasm` binary is fetched from `public/vendor/mediapipe/` at runtime.
+
 Only one inference frame may be in flight. When inference is busy, the scheduler keeps at most one newer pending frame and closes anything older. Camera capture targets 1280×720 at 30 FPS; transferred inference frames use 640×360.
 
 The worker returns `RawHandObservation[]`, not MediaPipe objects. Main-thread pure modules assign session hand IDs, normalize mirroring, derive geometry and orientation, smooth movement, stabilize gesture candidates, and emit semantic events.

@@ -4,6 +4,7 @@ import { HandFrameProcessor } from '../recognizers/processor';
 import { syntheticSequence } from '../testing/synthetic';
 import { CameraController, type CameraDevice } from '../tracking/camera';
 import { MediaPipeWorkerClient } from '../tracking/workerClient';
+import { errorLogger } from './errorLogger';
 import { HandUIStore } from './store';
 
 const TRACKER_CONFIG: TrackerConfig = {
@@ -76,6 +77,10 @@ export class HandUISession {
       const denied =
         error instanceof DOMException &&
         (error.name === 'NotAllowedError' || error.name === 'SecurityError');
+      errorLogger.capture(denied ? 'camera_permission_denied' : 'camera_start_failed', error, {
+        severity: denied ? 'warning' : 'error',
+        context: { requestedDevice: deviceId ? 'selected' : 'default' },
+      });
       this.store.update({
         status: denied ? 'denied' : 'error',
         error: denied
@@ -212,6 +217,10 @@ export class HandUISession {
   private async handleTrackingFailure(error: unknown): Promise<void> {
     if (this.restartCount === 0 && this.camera.active()) {
       this.restartCount = 1;
+      errorLogger.capture('tracking_worker_restart', error, {
+        severity: 'warning',
+        context: { attempt: 1 },
+      });
       await this.tracker?.close().catch(() => undefined);
       try {
         await this.initializeTracker();
@@ -222,6 +231,7 @@ export class HandUISession {
       }
     }
     this.camera.stop();
+    errorLogger.capture('tracking_fatal', error, { severity: 'fatal' });
     this.store.update({
       status: 'error',
       error: `Tracking stopped: ${error instanceof Error ? error.message : String(error)}`,

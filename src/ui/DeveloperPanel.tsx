@@ -1,4 +1,6 @@
+import { useSyncExternalStore } from 'react';
 import { useHandUISnapshot } from '../app/HandUISessionProvider';
+import { errorLogger } from '../handui/runtime/errorLogger';
 
 function Metric({ label, value }: { readonly label: string; readonly value: string }) {
   return (
@@ -11,6 +13,11 @@ function Metric({ label, value }: { readonly label: string; readonly value: stri
 
 export function DeveloperPanel() {
   const { frame, events } = useHandUISnapshot();
+  const errors = useSyncExternalStore(
+    errorLogger.subscribe,
+    errorLogger.getSnapshot,
+    errorLogger.getSnapshot,
+  );
   const hand = frame.hands[0];
   return (
     <aside className="developer-panel">
@@ -65,6 +72,25 @@ export function DeveloperPanel() {
           events.map((event, index) => <code key={`${event}-${index}`}>{event}</code>)
         ) : (
           <span>Waiting for observations…</span>
+        )}
+      </div>
+      <div className="error-log" aria-live="assertive">
+        <div className="error-log-heading">
+          <p className="eyebrow">Local error log</p>
+          {errors.length ? <button onClick={() => errorLogger.clear()}>Clear</button> : null}
+        </div>
+        {errors.length ? (
+          errors.slice(0, 5).map((error) => (
+            <article key={error.id}>
+              <span>
+                {error.id} · {error.severity}
+              </span>
+              <strong>{error.code}</strong>
+              <small>{error.message}</small>
+            </article>
+          ))
+        ) : (
+          <span>No runtime errors.</span>
         )}
       </div>
     </aside>

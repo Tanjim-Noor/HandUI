@@ -1,8 +1,11 @@
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { StrictMode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import App from '../src/app/App';
 import { HandUISessionProvider } from '../src/app/HandUISessionProvider';
+
+afterEach(cleanup);
 
 function renderRoute(route: string) {
   return render(
@@ -34,5 +37,19 @@ describe('app shell', () => {
     renderRoute('/gallery/landmarks');
     expect(screen.getByRole('button', { name: /start camera/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /try replay/i })).toBeInTheDocument();
+  });
+
+  it('keeps the shared session alive through Strict Mode effect replay', async () => {
+    render(
+      <StrictMode>
+        <MemoryRouter initialEntries={['/gallery/landmarks']}>
+          <HandUISessionProvider>
+            <App />
+          </HandUISessionProvider>
+        </MemoryRouter>
+      </StrictMode>,
+    );
+    screen.getByRole('button', { name: /try replay/i }).click();
+    await waitFor(() => expect(screen.getByText('2 hands · synthetic')).toBeInTheDocument());
   });
 });

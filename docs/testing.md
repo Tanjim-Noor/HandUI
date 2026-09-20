@@ -9,7 +9,8 @@ Run `pnpm validate` after each change batch. It checks formatting, lint, types, 
 - Unit: coordinates, geometry, filters, identity, temporal stability, transforms, springs, quaternions.
 - Replay: deterministic normalized hand sequences without webcam hardware.
 - Component: camera states, controls, developer panel, fallback inputs.
-- Browser: app identity, routes, worker assets, synthetic demo, privacy request allowlist.
+- Runtime safety: structured error normalization, global handler cleanup, CSP policy separation, and Strict Mode session lifecycle.
+- Browser: app identity, routes, fake-camera worker initialization, bundled worker loader, same-origin WASM/model assets, synthetic demo, privacy request allowlist.
 - Manual: lighting, distance, handedness, speed, occlusion, two-hand crossing, camera selection.
 
 Pure math and recognizer coverage gates: 90% lines/functions and 85% branches.

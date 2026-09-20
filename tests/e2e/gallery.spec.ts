@@ -14,18 +14,20 @@ test('visitor can use replay, navigate interactions, and load the lazy 3D stage'
   await expect(page.locator('canvas')).toBeVisible();
 });
 
-test('camera session makes no third-party runtime requests', async ({ page }) => {
+test('camera worker initializes with same-origin runtime assets', async ({ page, baseURL }) => {
   const thirdParty: string[] = [];
+  const localOrigin = new URL(baseURL ?? 'http://127.0.0.1:45456').origin;
   page.on('request', (request) => {
     const url = new URL(request.url());
-    if (url.protocol.startsWith('http') && url.origin !== 'http://127.0.0.1:45456')
+    if (url.protocol.startsWith('http') && url.origin !== localOrigin)
       thirdParty.push(request.url());
   });
   await page.goto('/gallery/gestures');
-  await page.getByRole('button', { name: 'Try replay' }).click();
-  await expect(page.getByText(/synthetic replay/i)).toBeVisible();
-  await page.waitForTimeout(500);
+  await page.getByRole('button', { name: 'Start camera' }).click();
+  await expect(page.getByRole('button', { name: 'Stop' })).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByText('No runtime errors.')).toBeVisible();
   expect(thirdParty).toEqual([]);
+  await page.getByRole('button', { name: 'Stop' }).click();
 });
 
 test('required fallback interactions are keyboard reachable', async ({ page }) => {

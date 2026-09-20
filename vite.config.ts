@@ -1,26 +1,43 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
-const securityHeaders = {
-  'Content-Security-Policy': [
+function contentSecurityPolicy(scriptSource: string, connectSource: string) {
+  return [
     "default-src 'self'",
-    "script-src 'self' 'wasm-unsafe-eval'",
+    `script-src ${scriptSource}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' blob: data:",
     "media-src 'self' blob:",
     "worker-src 'self' blob:",
-    "connect-src 'self'",
+    `connect-src ${connectSource}`,
     "font-src 'self'",
-  ].join('; '),
+  ].join('; ');
+}
+
+const sharedSecurityHeaders = {
   'Permissions-Policy': 'camera=(self)',
   'Referrer-Policy': 'no-referrer',
   'X-Content-Type-Options': 'nosniff',
 };
 
+export const developmentSecurityHeaders = {
+  ...sharedSecurityHeaders,
+  // Vite injects the React Refresh preamble inline during local development.
+  'Content-Security-Policy': contentSecurityPolicy(
+    "'self' 'unsafe-inline' 'wasm-unsafe-eval'",
+    "'self' ws://localhost:* ws://127.0.0.1:*",
+  ),
+};
+
+export const productionSecurityHeaders = {
+  ...sharedSecurityHeaders,
+  'Content-Security-Policy': contentSecurityPolicy("'self' 'wasm-unsafe-eval'", "'self'"),
+};
+
 export default defineConfig({
   plugins: [react()],
-  server: { headers: securityHeaders },
-  preview: { headers: securityHeaders },
+  server: { headers: developmentSecurityHeaders },
+  preview: { headers: productionSecurityHeaders },
   build: {
     target: ['chrome111', 'edge111'],
     sourcemap: true,

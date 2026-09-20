@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useRef,
   useState,
   useSyncExternalStore,
   type ReactNode,
@@ -13,13 +14,18 @@ const SessionContext = createContext<HandUISession | null>(null);
 
 export function HandUISessionProvider({ children }: { readonly children: ReactNode }) {
   const [session] = useState(() => new HandUISession());
+  const mounted = useRef(false);
 
   useEffect(() => {
+    mounted.current = true;
     const stop = () => void session.stop();
     window.addEventListener('pagehide', stop);
     return () => {
+      mounted.current = false;
       window.removeEventListener('pagehide', stop);
-      void session.dispose();
+      queueMicrotask(() => {
+        if (!mounted.current) void session.dispose();
+      });
     };
   }, [session]);
 
